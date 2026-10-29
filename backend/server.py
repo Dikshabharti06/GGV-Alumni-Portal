@@ -29,9 +29,8 @@ app.add_middleware(
     allow_origins=frontend_origins,
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allow_headers=["Content-Type", "Authorization"],
+    allow_headers=["*"],
 )
-
 
 @app.on_event("shutdown")
 async def shutdown():

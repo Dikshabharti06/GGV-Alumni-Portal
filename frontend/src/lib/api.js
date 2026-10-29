@@ -1,9 +1,11 @@
-export const API = (
+
+const API = (
   import.meta.env.VITE_API_URL || "http://localhost:8000/api"
-).replace(/\/$/, "");
+).replace(/\/+$/, "");
 
 export async function request(path, options = {}) {
   const isForm = options.body instanceof FormData;
+
   const res = await fetch(`${API}${path}`, {
     credentials: "include",
     ...options,
@@ -12,11 +14,15 @@ export async function request(path, options = {}) {
       ...(options.headers || {}),
     },
   });
+
   const body = await res.json().catch(() => ({}));
-  if (!res.ok)
+
+  if (!res.ok) {
     throw new Error(
       body.detail || body.message || `Request failed (${res.status})`,
     );
+  }
+
   return body;
 }
 
@@ -47,5 +53,6 @@ export const api = {
       method: "PATCH",
       body: JSON.stringify({ mentorship: value }),
     }),
-  approve: (id) => request(`/admin/graduate/${id}/approve`, { method: "POST" }),
+  approve: (id) =>
+    request(`/admin/graduate/${id}/approve`, { method: "POST" }),
 };

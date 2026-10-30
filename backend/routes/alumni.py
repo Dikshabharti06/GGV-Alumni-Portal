@@ -30,12 +30,33 @@ async def alumni(
 
 @router.get("/alumni/spotlight")
 async def alumni_spotlight():
-    return (
-        await db.alumni.find({"verified": True}, {"_id": 0, "contact": 0, "email": 0})
+    docs = (
+        await db.alumni.find(
+            {"verified": True},
+            {
+                "_id": 0,
+                "id": 1,
+                "name": 1,
+                "headline": 1,
+                "company": 1,
+                "department": 1,
+            },
+        )
         .sort("name", 1)
         .limit(6)
         .to_list(6)
     )
+
+    return [
+        {
+            "id": doc.get("id"),
+            "full_name": doc.get("name") or "GGV Alumni",
+            "current_position": doc.get("headline"),
+            "organization": doc.get("company"),
+            "department": doc.get("department"),
+        }
+        for doc in docs
+    ]
 
 
 @router.get("/alumni/{alumni_id}")

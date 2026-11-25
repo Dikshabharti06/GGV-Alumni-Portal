@@ -171,17 +171,17 @@ export default function Landing() {
             {spotlight.slice(0, 4).map((a) => (
               <div className="p-6 bg-white border border-line" key={a.id}>
                 <div className="h-13.5 w-13.5 rounded-[50%] grid place-items-center bg-[#e7efef] text-[#24485b] font-bold text-[15px]">
-                  {initials(a.full_name)}
-                </div>
-                <h3 className="text-[14px] mt-4.5 mb-1.25">
-                  {a.full_name}
-                </h3>
-                <p className="text-muted text-[12px] leading-normal mt-0 mb-1.5">
-                  {a.current_position || "GGV Alumni"}
-                </p>
-                <small className="text-muted text-[12px] leading-normal">
-                  {a.organization || a.department || "GGV Network"}
-                </small>
+                  {initials(a.name || a.full_name)}
+                  </div>
+                  <h3 className="text-[14px] mt-4.5 mb-1.25">
+                    {a.name || a.full_name}
+                    </h3>
+                    <p className="text-muted text-[12px] leading-normal mt-0 mb-1.5">
+                      {a.headline || a.current_position || "GGV Alumni"}
+                      </p>
+                      <small className="text-muted text-[12px] leading-normal">
+                        {a.company || a.organization || a.department || "GGV Network"}
+                        </small>
               </div>
             ))}
           </div>

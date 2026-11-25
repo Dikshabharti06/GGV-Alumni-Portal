@@ -1,20 +1,9 @@
-import os
-
-COOKIE_SECURE = os.getenv("COOKIE_SECURE", "false").lower() == "true"
-COOKIE_SAMESITE = "none" if COOKIE_SECURE else "lax"
-
 from fastapi import APIRouter, HTTPException, Request, Response, Depends
 from datetime import datetime, timezone, timedelta
 import uuid
 
 from lib.db import db
-from lib.security import (
-    hash_password,
-    verify_password,
-    token_for,
-    public_user,
-    current_user,
-)
+from lib.security import hash_password, verify_password, token_for, public_user, current_user
 from lib.utils import now
 from models.schemas import AuthInput
 
@@ -42,13 +31,7 @@ async def register(data: AuthInput, response: Response):
     }
     await db.users.insert_one(user)
     response.set_cookie(
-        key="access_token",
-        value=token_for(user),
-        httponly=True,
-        secure=COOKIE_SECURE,
-        samesite=COOKIE_SAMESITE,
-        max_age=172800,
-        path="/",
+        "access_token", token_for(user), httponly=True, samesite="lax", max_age=172800
     )
     return public_user(user)
 
@@ -75,26 +58,14 @@ async def login(data: AuthInput, response: Response, request: Request):
         raise HTTPException(401, "Email or password is incorrect")
     await db.login_attempts.delete_one({"identifier": identifier})
     response.set_cookie(
-        key="access_token",
-        value=token_for(user),
-        httponly=True,
-        secure=COOKIE_SECURE,
-        samesite=COOKIE_SAMESITE,
-        max_age=172800,
-        path="/",
+        "access_token", token_for(user), httponly=True, samesite="lax", max_age=172800
     )
     return public_user(user)
 
 
 @router.post("/auth/logout")
 async def logout(response: Response):
-    response.delete_cookie(
-        key="access_token",
-        path="/",
-        secure=COOKIE_SECURE,
-        httponly=True,
-        samesite=COOKIE_SAMESITE,
-    )
+    response.delete_cookie("access_token")
     return {"ok": True}
 
 

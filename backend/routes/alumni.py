@@ -1,7 +1,8 @@
 from fastapi import APIRouter, HTTPException, Request, Depends
 
 from lib.db import db
-from lib.security import current_user
+from lib.security import current_user, require_admin
+from lib.utils import HIDDEN_ALUMNI_FIELDS
 from models.schemas import ProfileUpdate
 
 router = APIRouter()
@@ -21,7 +22,7 @@ async def alumni(
     if department:
         query["department"] = department
     docs = (
-        await db.alumni.find(query, {"_id": 0, "contact": 0})
+        await db.alumni.find(query, HIDDEN_ALUMNI_FIELDS)
         .sort("name", 1)
         .to_list(100)
     )
@@ -30,39 +31,18 @@ async def alumni(
 
 @router.get("/alumni/spotlight")
 async def alumni_spotlight():
-    docs = (
-        await db.alumni.find(
-            {"verified": True},
-            {
-                "_id": 0,
-                "id": 1,
-                "name": 1,
-                "headline": 1,
-                "company": 1,
-                "department": 1,
-            },
-        )
+    return (
+        await db.alumni.find({"verified": True}, HIDDEN_ALUMNI_FIELDS)
         .sort("name", 1)
         .limit(6)
         .to_list(6)
     )
 
-    return [
-        {
-            "id": doc.get("id"),
-            "full_name": doc.get("name") or "GGV Alumni",
-            "current_position": doc.get("headline"),
-            "organization": doc.get("company"),
-            "department": doc.get("department"),
-        }
-        for doc in docs
-    ]
-
 
 @router.get("/alumni/{alumni_id}")
 async def alumni_detail(alumni_id: str, user=Depends(current_user)):
     doc = await db.alumni.find_one(
-        {"id": alumni_id, "verified": True}, {"_id": 0, "contact": 0}
+        {"id": alumni_id, "verified": True}, HIDDEN_ALUMNI_FIELDS
     )
     if not doc:
         raise HTTPException(404, "Alumni profile not found")
@@ -71,16 +51,8 @@ async def alumni_detail(alumni_id: str, user=Depends(current_user)):
 
 @router.put("/alumni/{alumni_id}")
 async def update_alumni(
-    alumni_id: str, data: ProfileUpdate, user=Depends(current_user)
+    alumni_id: str, data: ProfileUpdate, user=Depends(require_admin)
 ):
-    if user["role"] not in ("alumni", "admin"):
-        raise HTTPException(403, "Only alumni can update this profile")
-    if user["role"] == "alumni":
-        existing = await db.alumni.find_one(
-            {"id": alumni_id, "email": user["email"]}, {"_id": 0}
-        )
-        if not existing:
-            raise HTTPException(403, "You can only update your own claimed profile")
     update = {k: v for k, v in data.model_dump().items() if v is not None}
     await db.alumni.update_one({"id": alumni_id}, {"$set": update})
     return {"ok": True}

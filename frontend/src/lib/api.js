@@ -1,11 +1,9 @@
-
-const API = (
+export const API = (
   import.meta.env.VITE_API_URL || "http://localhost:8000/api"
-).replace(/\/+$/, "");
+).replace(/\/$/, "");
 
 export async function request(path, options = {}) {
   const isForm = options.body instanceof FormData;
-
   const res = await fetch(`${API}${path}`, {
     credentials: "include",
     ...options,
@@ -14,15 +12,11 @@ export async function request(path, options = {}) {
       ...(options.headers || {}),
     },
   });
-
   const body = await res.json().catch(() => ({}));
-
-  if (!res.ok) {
+  if (!res.ok)
     throw new Error(
       body.detail || body.message || `Request failed (${res.status})`,
     );
-  }
-
   return body;
 }
 
@@ -33,6 +27,8 @@ export const api = {
   register: (data) =>
     request("/auth/register", { method: "POST", body: JSON.stringify(data) }),
   logout: () => request("/auth/logout", { method: "POST" }),
+  updateProfile: (data) =>
+    request("/auth/profile", { method: "PUT", body: JSON.stringify(data) }),
   dashboard: () => request("/dashboard"),
   alumni: (q = "", department = "") =>
     request(
@@ -53,6 +49,11 @@ export const api = {
       method: "PATCH",
       body: JSON.stringify({ mentorship: value }),
     }),
-  approve: (id) =>
-    request(`/admin/graduate/${id}/approve`, { method: "POST" }),
+  adminAlumni: () => request("/admin/alumni"),
+  addAlumni: (data) =>
+    request("/admin/alumni", { method: "POST", body: JSON.stringify(data) }),
+  editAlumni: (id, data) =>
+    request(`/admin/alumni/${id}`, { method: "PUT", body: JSON.stringify(data) }),
+  deleteAlumni: (id) => request(`/admin/alumni/${id}`, { method: "DELETE" }),
+  approve: (id) => request(`/admin/graduate/${id}/approve`, { method: "POST" }),
 };

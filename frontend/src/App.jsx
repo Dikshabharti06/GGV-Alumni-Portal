@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { api } from "./lib/api";
 import Brand from "./components/Brand";
@@ -12,6 +12,7 @@ import AlumniDirectory from "./pages/AlumniDirectory";
 import Events from "./pages/Events";
 import Announcements from "./pages/Announcements";
 import AdminDashboard from "./pages/AdminDashboard";
+import Profile from "./pages/Profile";
 import "./index.css";
 
 function PortalApp() {
@@ -89,6 +90,16 @@ function PortalApp() {
           <Protected user={user}>
             <PortalLayout user={user}>
               <Announcements />
+            </PortalLayout>
+          </Protected>
+        }
+      />
+      <Route
+        path="/profile"
+        element={
+          <Protected user={user}>
+            <PortalLayout user={user}>
+              <Profile user={user} onSaved={setUser} />
             </PortalLayout>
           </Protected>
         }

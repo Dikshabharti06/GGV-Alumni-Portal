@@ -7,6 +7,7 @@ class AuthInput(BaseModel):
     password: str
     name: Optional[str] = None
     role: str = "student"
+    enrollment: Optional[str] = None
 
 
 class ProfileUpdate(BaseModel):
@@ -24,3 +25,8 @@ class AnnouncementInput(BaseModel):
     title: str
     body: str
     category: str = "Community"
+
+
+class UserProfileUpdate(BaseModel):
+    name: Optional[str] = None
+    enrollment: Optional[str] = None

@@ -33,6 +33,7 @@ def public_user(user):
         "name": user.get("name", "Member"),
         "role": user["role"],
         "status": user.get("status", "active"),
+        "enrollment": user.get("enrollment", ""),
     }
 
 

@@ -3,6 +3,7 @@ import { ArrowRight, GraduationCap, ShieldCheck, Users } from "lucide-react";
 import { api } from "../lib/api";
 import { kicker, fieldNoFocus, field, formLabel, emptyCls, noteCls } from "../lib/styles";
 import Button from "../components/Button";
+import AlumniManager from "../components/AlumniManager";
 import Stat from "../components/Stat";
 import PageHeader from "../components/PageHeader";
 
@@ -147,6 +148,7 @@ export default function Admin() {
         </section>
       </div>
       {msg && <p className={`${noteCls} leading-[1.6] text-teal`}>{msg}</p>}
+      <AlumniManager />
     </>
   );
 }

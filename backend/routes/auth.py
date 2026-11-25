@@ -5,7 +5,7 @@ import uuid
 from lib.db import db
 from lib.security import hash_password, verify_password, token_for, public_user, current_user
 from lib.utils import now
-from models.schemas import AuthInput
+from models.schemas import AuthInput, UserProfileUpdate
 
 router = APIRouter()
 
@@ -17,6 +17,9 @@ async def register(data: AuthInput, response: Response):
             status_code=400,
             detail="Choose a valid account role",
         )
+    enrollment = (data.enrollment or "").strip()
+    if data.role in ("student", "alumni") and not enrollment:
+        raise HTTPException(400, "Enter your enrollment number")
     email = data.email.lower()
     if await db.users.find_one({"email": email}):
         raise HTTPException(409, "An account with this email already exists")
@@ -26,6 +29,7 @@ async def register(data: AuthInput, response: Response):
         "password_hash": hash_password(data.password),
         "name": data.name or "New member",
         "role": data.role,
+        "enrollment": enrollment if data.role in ("student", "alumni") else "",
         "status": "active",
         "created_at": now(),
     }
@@ -72,3 +76,21 @@ async def logout(response: Response):
 @router.get("/auth/me")
 async def me(user=Depends(current_user)):
     return public_user(user)
+
+
+@router.put("/auth/profile")
+async def update_profile(data: UserProfileUpdate, user=Depends(current_user)):
+    update = {}
+    if data.name is not None:
+        name = data.name.strip()
+        if len(name) < 2:
+            raise HTTPException(400, "Enter your full name")
+        update["name"] = name
+    if data.enrollment is not None and user["role"] in ("student", "alumni"):
+        enrollment = data.enrollment.strip()
+        if not enrollment:
+            raise HTTPException(400, "Enter your enrollment number")
+        update["enrollment"] = enrollment
+    if update:
+        await db.users.update_one({"id": user["id"]}, {"$set": update})
+    return public_user({**user, **update})

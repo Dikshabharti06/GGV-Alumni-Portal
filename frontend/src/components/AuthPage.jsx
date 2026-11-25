@@ -15,6 +15,7 @@ export default function AuthPage({ mode }) {
     email: "",
     password: "",
     role: "student",
+    enrollment: "",
   });
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
@@ -48,20 +49,20 @@ export default function AuthPage({ mode }) {
   return (
     <div className="min-h-screen grid grid-cols-[1fr_1fr] bg-white mobile:grid-cols-[1fr]">
       <div
-        className="bg-cover bg-center flex flex-col justify-between py-[42px] px-[8%] text-white min-h-screen mobile:hidden"
+        className="bg-cover bg-center flex flex-col justify-between py-10.5 px-[8%] text-white min-h-screen mobile:hidden"
         style={{
           backgroundImage: `linear-gradient(0deg,rgba(9,31,52,.9),rgba(9,31,52,.35)),url("${heroImage}")`,
         }}
       >
         <Brand />
-        <div className="max-w-[540px] my-[50px]">
+        <div className="max-w-135 my-12.5">
           <Eyebrow>YOUR GGV COMMUNITY</Eyebrow>
-          <h1 className="font-display font-semibold text-[length:clamp(38px,4.5vw,64px)] leading-[1.08] mt-0 mb-5">
+          <h1 className="font-display font-semibold text-[clamp(38px,4.5vw,64px)] leading-[1.08] mt-0 mb-5">
             {mode === "login"
               ? "Welcome back."
               : "Your next chapter starts here."}
           </h1>
-          <p className="text-[#dbe5e9] leading-[1.8] max-w-[430px]">
+          <p className="text-[#dbe5e9] leading-[1.8] max-w-107.5">
             One campus. Many journeys. Stay connected to the people and
             possibilities of GGV.
           </p>
@@ -71,11 +72,11 @@ export default function AuthPage({ mode }) {
         </small>
       </div>
 
-      <div className="py-[35px] px-[9%] flex flex-col mobile:min-h-screen mobile:py-[25px] mobile:px-[23px]">
+      <div className="py-8.75 px-[9%] flex flex-col mobile:min-h-screen mobile:py-6.25 mobile:px-5.75">
         <Link to="/" className="text-muted text-[12px]">
           ← Back to home
         </Link>
-        <div className="w-full max-w-[420px] m-auto mobile:py-10 mobile:px-0">
+        <div className="w-full max-w-105 m-auto mobile:py-10 mobile:px-0">
           <div className={kicker}>
             {mode === "login" ? "MEMBER ACCESS" : "JOIN THE NETWORK"}
           </div>
@@ -145,6 +146,20 @@ export default function AuthPage({ mode }) {
                 )}
               </select>
             </label>
+            {mode === "register" &&
+              (form.role === "student" || form.role === "alumni") && (
+                <label className={formLabel}>
+                  Enrollment number
+                  <input
+                    name="enrollment"
+                    value={form.enrollment}
+                    onChange={update}
+                    required
+                    placeholder="e.g. GGV/20/1234"
+                    className={field}
+                  />
+                </label>
+              )}
             {error && <div className={errorBox}>{error}</div>}
             <Button type="submit" disabled={busy} block>
               {busy
@@ -155,7 +170,7 @@ export default function AuthPage({ mode }) {
               <ArrowRight size={17} />
             </Button>
           </form>
-          <div className="text-center text-[12px] text-muted mt-[23px]">
+          <div className="text-center text-[12px] text-muted mt-5.75">
             {mode === "login" ? "New to the network?" : "Already a member?"}{" "}
             <Link
               to={mode === "login" ? "/register" : "/login"}
@@ -164,7 +179,7 @@ export default function AuthPage({ mode }) {
               {mode === "login" ? "Create an account" : "Sign in"}
             </Link>
           </div>
-          <p className="flex items-center justify-center gap-[7px] text-[13px] text-muted mt-[35px] mb-7">
+          <p className="flex items-center justify-center gap-1.75 text-[13px] text-muted mt-8.75 mb-7">
             <ShieldCheck size={15} /> Your account role and permissions are
             enforced by the server.
           </p>

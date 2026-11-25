@@ -37,6 +37,19 @@ def public_user(user):
     }
 
 
+def auth_cookie_options():
+    """Cookie settings for the login cookie.
+
+    When the website is served over https (a deployed site, where the frontend
+    and backend are on different domains) the browser only sends the cookie if
+    it is SameSite=None and Secure. On localhost it stays SameSite=Lax.
+    """
+    origins = os.getenv("FRONTEND_URL", "http://localhost:5173")
+    if any(o.strip().startswith("https://") for o in origins.split(",")):
+        return {"samesite": "none", "secure": True}
+    return {"samesite": "lax"}
+
+
 async def current_user(request: Request):
     token = request.cookies.get("access_token")
     if not token:

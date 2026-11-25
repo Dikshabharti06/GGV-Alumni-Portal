@@ -20,7 +20,7 @@ async def startup():
 
 app.include_router(api)
 frontend_origins = [
-    x.strip()
+    x.strip().rstrip("/")
     for x in os.getenv("FRONTEND_URL", "http://localhost:5173").split(",")
     if x.strip()
 ]

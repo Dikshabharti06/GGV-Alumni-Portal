@@ -12,17 +12,19 @@ ALUMNI_SOURCE = "nexus_alumni_data"
 async def seed_alumni():
     """Load the official alumni list (data/alumni_data.json).
 
-    Runs only when the official list is not in the database yet. It replaces any
-    older sample alumni, and never runs again afterwards, so edits made by the
-    admin are kept across restarts.
+    Runs only once. It replaces any older sample alumni, and never runs again
+    afterwards, so edits, additions and deletions made by the admin are kept
+    across restarts.
     """
-    if await db.alumni.count_documents({"source": ALUMNI_SOURCE}) > 0:
+    if await db.meta.find_one({"key": "alumni_seeded"}):
         return
-    records = json.loads(ALUMNI_FILE.read_text(encoding="utf-8"))
-    for item in records:
-        item["created_at"] = now()
-    await db.alumni.delete_many({})
-    await db.alumni.insert_many(records)
+    if await db.alumni.count_documents({"source": ALUMNI_SOURCE}) == 0:
+        records = json.loads(ALUMNI_FILE.read_text(encoding="utf-8"))
+        for item in records:
+            item["created_at"] = now()
+        await db.alumni.delete_many({})
+        await db.alumni.insert_many(records)
+    await db.meta.insert_one({"key": "alumni_seeded", "at": now()})
 
 
 async def seed():

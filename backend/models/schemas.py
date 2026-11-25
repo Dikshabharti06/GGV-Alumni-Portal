@@ -30,3 +30,19 @@ class AnnouncementInput(BaseModel):
 class UserProfileUpdate(BaseModel):
     name: Optional[str] = None
     enrollment: Optional[str] = None
+
+
+class AlumniRecord(BaseModel):
+    name: str
+    department: str = ""
+    graduation_year: str = ""
+    program: str = ""
+    company: str = ""
+    headline: str = ""
+    location: str = ""
+    email: str = ""
+    contact: str = ""
+    enrollment: str = ""
+    address: str = ""
+    bio: str = ""
+    mentorship: bool = False

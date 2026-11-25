@@ -3,7 +3,7 @@ from datetime import datetime, timezone, timedelta
 import uuid
 
 from lib.db import db
-from lib.security import hash_password, verify_password, token_for, public_user, current_user
+from lib.security import auth_cookie_options, hash_password, verify_password, token_for, public_user, current_user
 from lib.utils import now
 from models.schemas import AuthInput, UserProfileUpdate
 
@@ -35,7 +35,11 @@ async def register(data: AuthInput, response: Response):
     }
     await db.users.insert_one(user)
     response.set_cookie(
-        "access_token", token_for(user), httponly=True, samesite="lax", max_age=172800
+        "access_token",
+        token_for(user),
+        httponly=True,
+        max_age=172800,
+        **auth_cookie_options(),
     )
     return public_user(user)
 
@@ -62,14 +66,18 @@ async def login(data: AuthInput, response: Response, request: Request):
         raise HTTPException(401, "Email or password is incorrect")
     await db.login_attempts.delete_one({"identifier": identifier})
     response.set_cookie(
-        "access_token", token_for(user), httponly=True, samesite="lax", max_age=172800
+        "access_token",
+        token_for(user),
+        httponly=True,
+        max_age=172800,
+        **auth_cookie_options(),
     )
     return public_user(user)
 
 
 @router.post("/auth/logout")
 async def logout(response: Response):
-    response.delete_cookie("access_token")
+    response.delete_cookie("access_token", **auth_cookie_options())
     return {"ok": True}
 
 
